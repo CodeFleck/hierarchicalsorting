@@ -15,16 +15,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
 @Log4j2
 @Service
 public class FileService {
 
     public static List<OutputRow> sortFile(Path file) {
-        log.info("Sorting file *** {} ***", file.getFileName());
+        log.info("Sorting file ** {} **", file.getFileName());
 
         List<InputRow> data = getData(file);
         String chosenMetric = "net_sales";
+        log.info("Chosen metric for sorting = " + chosenMetric);
         return hierarchicalSort(data, chosenMetric);
     }
 
@@ -47,9 +47,11 @@ public class FileService {
     }
 
     private static List<OutputRow> mapToOutput(List<InputRow> inputRowsWithTotalOnTop) {
-        return inputRowsWithTotalOnTop.stream().map(inputRow -> {
+        List<OutputRow> outputRows = inputRowsWithTotalOnTop.stream().map(inputRow -> {
             return OutputRow.builder().data(mapDataFromInputRow(inputRow)).build();
         }).collect(Collectors.toList());
+        outputRows.forEach(outputRow -> log.info(outputRow.getData()));
+        return outputRows;
     }
 
     private static int getMetricIndex(InputRow inputRow, String metric) {
@@ -97,6 +99,7 @@ public class FileService {
                 categoryName = row.getProperties().get(0);
             }
         }
+        inputRowsByCategory.add(data.subList(categoryBeginIndex, data.size()));
         for (int i = 0; i < inputRowsByCategory.size(); i++) {
             inputRowsByCategory.get(i).sort(Comparator.comparing(inputRow -> inputRow.getProperties().get(1)));
         }
@@ -118,6 +121,7 @@ public class FileService {
                 subcategoryName = row.getProperties().get(1);
             }
         }
+        inputRowsBySubcategory.add(inputRows.subList(subcategoryBeginIndex, inputRows.size()));
         for (int i = 0; i < inputRowsBySubcategory.size(); i++) {
             inputRowsBySubcategory.get(i).sort(Comparator.comparing(inputRow -> inputRow.getMetrics().get(metricIndex))); //sort by double value
         }
@@ -150,6 +154,7 @@ public class FileService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        inputRows.remove(0);
         return inputRows;
     }
 

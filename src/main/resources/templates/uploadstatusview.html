@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"></meta>
+<title>Uplaod Status</title>
+</head>
+<body>
+  <div th:if="${msg}">
+    <span th:text="${msg}"></span>
+  </div>
+  <br>
+  <div>
+    <h2>Results:</h2><br>
+    <tr th:if="${results.empty}">
+      <td colspan="2"> No Results Available </td>
+    </tr>
+    <tr th:each="result : ${results}">
+      <td><span th:text="${result.data}"> Result </span></td>
+      <br>
+    </tr>
+  </div>
+</body>
+</html>

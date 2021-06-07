@@ -10,9 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -40,6 +38,10 @@ public class FileService {
             inputRowsByProperty.get(i).sort(Comparator.comparing(inputRow -> inputRow.getProperties().get(1)));
             List<List<InputRow>> inputRowsBySubProperty = collectInputRowsBySubproperty(inputRowsByProperty.get(i), metricIndex);
             for (int j = 0; j < inputRowsBySubProperty.size(); j++) {
+                inputRowsBySubProperty.get(j).sort(Comparator.comparingDouble(inputRow -> {
+                    return Double.valueOf(inputRow.getMetrics().get(metricIndex));
+                })); //sort by double value
+                Collections.reverse(inputRowsBySubProperty.get(j));
                 inputRowsWithTotalOnTop.addAll(placeTotalOnTopOfList(inputRowsBySubProperty.get(j)));
             }
         }
@@ -93,7 +95,7 @@ public class FileService {
             if (categoryName.equals(row.getProperties().get(0))) {
                 categoryEndIndex++;
             } else {
-                inputRowsByCategory.add(data.subList(categoryBeginIndex, categoryEndIndex));
+                inputRowsByCategory.addAll(Arrays.asList(data.subList(categoryBeginIndex, categoryEndIndex)));
                 categoryBeginIndex = categoryEndIndex;
                 categoryEndIndex++;
                 categoryName = row.getProperties().get(0);
@@ -115,16 +117,13 @@ public class FileService {
             if (subcategoryName.equals(row.getProperties().get(1))) {
                 subcategoryEndIndex++;
             } else {
-                inputRowsBySubcategory.add(inputRows.subList(subcategoryBeginIndex, subcategoryEndIndex));
+                inputRowsBySubcategory.addAll(Arrays.asList(inputRows.subList(subcategoryBeginIndex, subcategoryEndIndex)));
                 subcategoryBeginIndex = subcategoryEndIndex;
                 subcategoryEndIndex++;
                 subcategoryName = row.getProperties().get(1);
             }
         }
-        inputRowsBySubcategory.add(inputRows.subList(subcategoryBeginIndex, inputRows.size()));
-        for (int i = 0; i < inputRowsBySubcategory.size(); i++) {
-            inputRowsBySubcategory.get(i).sort(Comparator.comparing(inputRow -> inputRow.getMetrics().get(metricIndex))); //sort by double value
-        }
+        inputRowsBySubcategory.addAll(Arrays.asList(inputRows.subList(subcategoryBeginIndex, inputRows.size())));
         return inputRowsBySubcategory;
     }
 

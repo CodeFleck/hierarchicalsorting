@@ -1,4 +1,4 @@
-# hierarchicalsorting
+# Hierarchical Sorting
 
 Requirements: 
 

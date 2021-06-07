@@ -1,5 +1,4 @@
 # hierarchicalsorting
-42 Technologies Assignment
 
 Requirements: 
 
